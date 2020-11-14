@@ -86,11 +86,12 @@ public class BST<Key extends Comparable<Key>> {
 
     /* Returns a tree with key deleted from the tree rooted at x. */
     private Node deleteTakingSuccessor(Node x, Key key) {
+
         if (x == null) return null;
 
         int cmp = key.compareTo(x.key);
-        if      (cmp < 0) x.left  = deleteTakingSuccessor(x.left,  key);
-        else if (cmp > 0) x.right = deleteTakingSuccessor(x.right, key);
+        if      (cmp < 0) {x.left  = deleteTakingSuccessor(x.left,  key);}
+        else if (cmp > 0) {x.right = deleteTakingSuccessor(x.right, key);}
         else {
             if (x.right == null) return x.left;
             if (x.left  == null) return x.right;
@@ -104,11 +105,12 @@ public class BST<Key extends Comparable<Key>> {
     }
 
     private Node deleteTakingRandom(Node x, Key key) {
+        int a = 0;
         if (x == null) return null;
 
         int cmp = key.compareTo(x.key);
-        if      (cmp < 0) x.left  = deleteTakingRandom(x.left,  key);
-        else if (cmp > 0) x.right = deleteTakingRandom(x.right, key);
+        if      (cmp < 0) {x.left  = deleteTakingRandom(x.left,  key);}
+        else if (cmp > 0) {x.right = deleteTakingRandom(x.right, key);}
         else {
             if (x.right == null) return x.left;
             if (x.left  == null) return x.right;
@@ -126,6 +128,7 @@ public class BST<Key extends Comparable<Key>> {
             }
 
         }
+
         x.size = size(x.left) + size(x.right) + 1;
         return x;
     }
@@ -177,12 +180,14 @@ public class BST<Key extends Comparable<Key>> {
 
 
     private Node add(Node x, Key key) {
+        int a = 0;
         if (x == null) return new Node(key, 1);
         int cmp = key.compareTo(x.key);
-        if      (cmp < 0) x.left  = add(x.left,  key);
-        else if (cmp > 0) x.right = add(x.right, key);
+        if      (cmp < 0) { x.left  = add(x.left,  key); a += 1; }
+        else if (cmp > 0) { x.right = add(x.right, key); a += 1; }
         else              ; // do nothing, key already exists
         x.size = 1 + size(x.left) + size(x.right);
+        sumnodedepth += a;
         return x;
     }
 
@@ -245,5 +250,13 @@ public class BST<Key extends Comparable<Key>> {
      */
     private boolean isEmpty() {
         return size() == 0;
+    }
+
+    public int sumnodedepth = 0;
+    public double averagedepth() {
+        return averagedepth(root);
+    }
+    public double averagedepth(Node x) {
+        return (double) sumnodedepth / root.size;
     }
 }
