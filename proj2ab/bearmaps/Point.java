@@ -1,5 +1,7 @@
 package bearmaps;
 
+import java.util.List;
+
 public class Point {
 
     private double x;
@@ -23,7 +25,7 @@ public class Point {
      * (x1, y1) and (x2, y2). Note: This is the square of the Euclidean distance,
      * i.e. there's no square root.
      */
-    private static double distance(double x1, double x2, double y1, double y2) {
+    public static double distance(double x1, double x2, double y1, double y2) {
         return Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
     }
 
@@ -57,4 +59,6 @@ public class Point {
     public String toString() {
         return String.format("Point x: %.10f, y: %.10f", x, y);
     }
+
+
 }
