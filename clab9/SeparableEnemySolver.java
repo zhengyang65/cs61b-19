@@ -5,6 +5,11 @@ import java.util.*;
 public class SeparableEnemySolver {
 
     Graph g;
+    private Map<String, Boolean> marked;
+    private Map<String, Boolean> color;
+    boolean result = true;
+    //boolean[] marked = new boolean[g.labels().size()];
+    //boolean[] color = new boolean[g.labels().size()];
 
     /**
      * Creates a SeparableEnemySolver for a file with name filename. Enemy
@@ -23,10 +28,34 @@ public class SeparableEnemySolver {
      * Returns true if input is separable, false otherwise.
      */
     public boolean isSeparable() {
-        // TODO: Fix me
-        return false;
+        initial();
+        for (String str : g.labels()) {
+            if (!marked.get(str)) {
+                dfs(str);
+            }
+        }
+        return result;
+    }
+    public void initial() {
+        marked = new HashMap<>();
+        color = new HashMap<>();
+        for (String str : g.labels()) {
+            marked.put(str, false);
+            color.put(str,  false);
+        }
     }
 
+    public void dfs(String v) {
+        marked.put(v, true);
+        for (String str:g.neighbors(v)) {
+            if (!marked.get(str)) {
+                color.put(str, !color.get(v));
+                dfs(str);
+            } else if (color.get(v).equals(color.get(str))) {
+                result = false;
+            }
+        }
+    }
 
     /* HELPERS FOR READING IN CSV FILES. */
 
@@ -45,7 +74,7 @@ public class SeparableEnemySolver {
                 }
                 continue;
             }
-            assert(lines.get(i).size() == 2);
+            assert (lines.get(i).size() == 2);
             input.connect(lines.get(i).get(0), lines.get(i).get(1));
         }
         return input;
