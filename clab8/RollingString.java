@@ -1,9 +1,13 @@
+import java.util.Objects;
+
 /**
  * A String-like class that allows users to add and remove characters in the String
  * in constant time and have a constant-time hash function. Used for the Rabin-Karp
  * string-matching algorithm.
  */
-class RollingString{
+class RollingString {
+    private StringBuilder strb;
+    private int patlength;
 
     /**
      * Number of total possible int values a character can take on.
@@ -21,9 +25,14 @@ class RollingString{
      * Initializes a RollingString with a current value of String s.
      * s must be the same length as the maximum length.
      */
+    public RollingString(String s) {
+        strb = new StringBuilder(s);
+        assert (strb.length() == s.length());
+    }
     public RollingString(String s, int length) {
-        assert(s.length() == length);
-        /* FIX ME */
+        strb = new StringBuilder(s);
+        assert (strb.length() == s.length());
+        patlength = length;
     }
 
     /**
@@ -32,7 +41,8 @@ class RollingString{
      * Should be a constant-time operation.
      */
     public void addChar(char c) {
-        /* FIX ME */
+        strb.substring(0);
+        strb.append(c);
     }
 
 
@@ -41,10 +51,9 @@ class RollingString{
      * the String. Should take linear time in the number of characters in
      * the string.
      */
+    @Override
     public String toString() {
-        StringBuilder strb = new StringBuilder();
-        /* FIX ME */
-        return "";
+        return strb.toString();
     }
 
     /**
@@ -52,8 +61,7 @@ class RollingString{
      * Should be a constant-time operation.
      */
     public int length() {
-        /* FIX ME */
-        return -1;
+        return strb.length();
     }
 
 
@@ -64,8 +72,14 @@ class RollingString{
      */
     @Override
     public boolean equals(Object o) {
-        /* FIX ME */
-        return false;
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+        RollingString aka = (RollingString) o;
+        return Objects.equals(aka.toString(), o.toString());
     }
 
     /**
@@ -74,7 +88,31 @@ class RollingString{
      */
     @Override
     public int hashCode() {
-        /* FIX ME */
-        return -1;
+        int h = 0;
+        for (int i = 0; i < strb.length(); i++) {
+            h = ((UNIQUECHARS * h) + strb.charAt(i)) % PRIMEBASE;
+        }
+        return h;
+    }
+    public int hashCode(int length) {
+        int h = 0;
+        for (int i = 0; i < length; i++) {
+            h = ((UNIQUECHARS * h) + strb.charAt(i)) % PRIMEBASE;
+        }
+        return h;
+    }
+    public int hashCode(int hash, int index, int length) {
+        int rm = Rm(patlength);
+        int txthash = hash;
+        txthash = (txthash + PRIMEBASE - rm * strb.charAt(index - length) % PRIMEBASE) % PRIMEBASE;
+        txthash = (txthash * UNIQUECHARS + strb.charAt(index)) % PRIMEBASE;
+        return txthash;
+    }
+    public int Rm(int length) {
+        int rm = 1;
+        for (int i = 1; i <= length - 1; i++) {
+            rm = (UNIQUECHARS * rm) % PRIMEBASE;
+        }
+        return rm;
     }
 }
