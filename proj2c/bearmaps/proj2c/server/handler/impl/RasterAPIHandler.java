@@ -5,7 +5,6 @@ import bearmaps.proj2c.server.handler.APIRouteHandler;
 import spark.Request;
 import spark.Response;
 import bearmaps.proj2c.utils.Constants;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -84,11 +83,69 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      */
     @Override
     public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
-        //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
-        //System.out.println(requestParams);
+        System.out.println("yo, wanna know the parameters given by the web browser? They are:");
+        System.out.println(requestParams);
+        double ullat = requestParams.get("ullat");
+        double ullon = requestParams.get("ullon");
+        double lrlat = requestParams.get("lrlat");
+        double lrlon = requestParams.get("lrlon");
+        double w = requestParams.get("w");
+        if (lrlon <= Constants.ROOT_ULLON | ullon >= Constants.ROOT_LRLON |
+                lrlat >= Constants.ROOT_ULLAT | ullat <= Constants.ROOT_LRLAT) {
+            return queryFail();
+        }
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        results.put("query_success", true);
+        double rasterLonddp = (Constants.ROOT_LRLON- Constants.ROOT_ULLON) / Constants.TILE_SIZE;
+        double Londdp = (lrlon - ullon) / w;
+        double depth = 0;
+        while (Londdp < rasterLonddp & depth < 7) {
+            rasterLonddp /= 2;
+            depth +=1;
+        }
+        results.put("depth", (int) depth);
+        if (ullon < Constants.ROOT_ULLON) {
+            ullon = Constants.ROOT_ULLON;
+            results.put("raster_ul_lon", Constants.ROOT_ULLON);
+        }
+        if (lrlon > Constants.ROOT_LRLON) {
+            lrlon = Constants.ROOT_LRLON;
+            results.put("raster_lr_lon", Constants.ROOT_LRLON);
+        }
+        if (ullat > Constants.ROOT_ULLAT) {
+            ullat = Constants.ROOT_ULLAT;
+            results.put("raster_ul_lat", Constants.ROOT_ULLAT);
+        }
+        if (lrlat < Constants.ROOT_LRLAT) {
+            lrlat = Constants.ROOT_LRLAT;
+            results.put("raster_lr_lat", Constants.ROOT_LRLAT);
+        }
+        double width = (Constants.ROOT_LRLON - Constants.ROOT_ULLON) / Math.pow(2,depth);
+        double height = (Constants.ROOT_ULLAT - Constants.ROOT_LRLAT) / Math.pow(2,depth);
+        int xl = (int) Math.floor((ullon - Constants.ROOT_ULLON) / width);
+        int xr = (int) Math.floor((lrlon - Constants.ROOT_ULLON) / width);
+        if (xr == (int) Math.ceil((lrlon - Constants.ROOT_ULLON) / width)) {
+            xr -= 1;
+        }
+        int yl = (int) Math.floor((Constants.ROOT_ULLAT - ullat) / height);
+        int yr = (int) Math.floor((Constants.ROOT_ULLAT - lrlat) / height);
+        if (yr == (int) Math.ceil((Constants.ROOT_ULLAT - lrlat) / height)) {
+            yr -= 1;
+        }
+        results.put("raster_ul_lon", Constants.ROOT_ULLON + xl * width);
+        results.put("raster_lr_lon", Constants.ROOT_ULLON + (xr + 1) * width);
+        results.put("raster_ul_lat", Constants.ROOT_ULLAT - yl * height);
+        results.put("raster_lr_lat", Constants.ROOT_ULLAT - (yr + 1) * height);
+        String[][] grid = new String[yr - yl + 1][xr - xl + 1];
+        for (int i = 0; i < yr - yl + 1; i++) {
+            for (int j = 0; j < xr - xl + 1; j++) {
+                System.out.println("d" + (int) depth + "_x" + (j + xl) +"_y" + (i + yl) + ".png");
+                grid[i][j] = "d" + (int) depth + "_x" + (j + xl) +"_y" + (i + yl) + ".png";
+            }
+        }
+        results.put("render_grid", grid);
+        //System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
+        //        + "your browser.");
         return results;
     }
 

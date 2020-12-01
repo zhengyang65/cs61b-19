@@ -120,7 +120,6 @@ public class StreetMapGraph implements AStarGraph<Long> {
                 toRemove.add(id);
             }
         }
-
         for (long id : toRemove) {
             nodes.remove(id);
             neighbors.remove(id);

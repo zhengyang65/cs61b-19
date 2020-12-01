@@ -26,7 +26,7 @@ public class Point {
      *
      * @source Kevin Lowe & Antares Chen, and https://www.movable-type.co.uk/scripts/latlong.html
      **/
-    private static double distance(double lonV, double lonW, double latV, double latW) {
+    public static double distance(double lonV, double lonW, double latV, double latW) {
         double phi1 = Math.toRadians(latV);
         double phi2 = Math.toRadians(latW);
         double dphi = Math.toRadians(latW - latV);

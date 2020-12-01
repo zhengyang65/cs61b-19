@@ -1,7 +1,11 @@
 package bearmaps.proj2c;
 
-import java.util.List;
-import java.util.Objects;
+import bearmaps.hw4.AStarSolver;
+import bearmaps.hw4.WeightedEdge;
+import bearmaps.hw4.WeirdSolver;
+import bearmaps.hw4.streetmap.Node;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,10 +28,9 @@ public class Router {
      */
     public static List<Long> shortestPath(AugmentedStreetMapGraph g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        //long src = g.closest(stlon, stlat);
-        //long dest = g.closest(destlon, destlat);
-        //return new WeirdSolver<>(g, src, dest, 20).solution();
-        return null;
+        long src = g.closest(stlon, stlat);
+        long dest = g.closest(destlon, destlat);
+        return new AStarSolver<>(g, src, dest, 20).solution();
     }
 
     /**
@@ -39,8 +42,53 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(AugmentedStreetMapGraph g, List<Long> route) {
-        /* fill in for part IV */
-        return null;
+        List<NavigationDirection> navi = new ArrayList<>();
+        //List<Long> dr = new ArrayList<>(route);
+        int index = 0;
+        double prevbearing = 0;
+        double currbearing;
+        //for (Long l:route) {
+        //    Node n = g.getdirection.get(l);
+        //    System.out.println(n.name());
+        //}
+
+        //for (Node n:g.getdirection.values()) {
+        //    System.out.println(n.name());
+        //}
+        while (index < route.size() - 1) {
+            NavigationDirection dir = new NavigationDirection();
+            Long id1 = route.get(index);
+            Long id2 = route.get(index + 1);
+            for (WeightedEdge<Long> w:g.neighbors(id1)) {
+                if (w.to().equals(id2)) {
+                    if (w.getName() != null) {
+                        dir.way = w.getName();
+                        dir.distance = w.weight();
+                    }
+                }
+            }
+            index += 1;
+            Node n1 = g.getdirection.get(id1);
+            Node n2 = g.getdirection.get(id2);
+            //dir.distance = g.estimatedDistanceToGoal(id1, id2);
+            if (navi.isEmpty()) {
+                dir.direction = 0;
+                prevbearing = NavigationDirection.bearing(n1.lon(), n2.lon(), n1.lat(), n2.lat());
+                navi.add(dir);
+                continue;
+            }
+            currbearing = NavigationDirection.bearing(n1.lon(), n2.lon(), n1.lat(), n2.lat());
+            dir.direction = NavigationDirection.getDirection(prevbearing, currbearing);
+            prevbearing = currbearing;
+            if (Objects.equals(dir.way, navi.get(navi.size() - 1).way)) {
+                NavigationDirection remove = navi.remove(navi.size() - 1);
+                remove.distance += dir.distance;
+                navi.add(remove);
+                continue;
+            }
+            navi.add(dir);
+        }
+        return navi;
     }
 
     /**
